@@ -28,12 +28,12 @@ There are several options you can configure:
 
 The default configuration looks like this:
 
-![vis-ltspaces - Example with default values](vis-ltspaces_ex1.png "vis-ltspaces - Example with default values")
+![vis-ltspaces - Example with default values](img/vis-ltspaces_ex1.png "vis-ltspaces - Example with default values")
 
 
 You can use `showspaces` along with this plugins. With all spaces stylized, it may look like this:
 
-![vis-ltspaces - Example with other values and showspaces](vis-ltspaces_ex2.png "vis-ltspaces - Example with other values and showspaces")
+![vis-ltspaces - Example with other values and showspaces](img/vis-ltspaces_ex2.png "vis-ltspaces - Example with other values and showspaces")
 
 
 

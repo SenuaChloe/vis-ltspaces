@@ -1,35 +1,34 @@
-local LTS = {
-  leading_spaces = true,
+local BS = {
+  leading_spaces = false,
   trailing_spaces = true,
   other_spaces = false,
-  leading_color = '#00FF00',
-  trailing_color = '#FF0000',
-  other_color = '#0000FF',
+  leading_style = 'back:#008800',
+  trailing_style = 'back:#880000',
+  other_style = 'back:#000088',
   base_style_id = 60
 }
 
-LTS.on_win_highlight = function(win)
+
+BS.on_win_highlight = function(win)
   local content = win.file:content(win.viewport['bytes'])
-  if LTS.leading_spaces then
-    local matches = LTS.get_matches(content, "^( +)")
-    LTS.highlight(win, matches, LTS.leading_color, LTS.base_style_id, 1, 0)
-    local matches = LTS.get_matches(content, "\n( +)")
-    LTS.highlight(win, matches, LTS.leading_color, LTS.base_style_id, 1, 0)
+  if BS.leading_spaces then
+    local matches = BS.get_matches(content, "^( +)", 1, 0)
+    BS.update_style(win, matches, BS.leading_style, BS.base_style_id)
+    local matches = BS.get_matches(content, "\n( +)", 1, 0)
+    BS.update_style(win, matches, BS.leading_style, BS.base_style_id)
   end
-  if LTS.trailing_spaces then
-    local matches = LTS.get_matches(content, "( +)\n")
-    LTS.highlight(win, matches, LTS.trailing_color, LTS.base_style_id + 1, 0, -1)
-    local matches = LTS.get_matches(content, "( +)\r\n")
-    LTS.highlight(win, matches, LTS.trailing_color, LTS.base_style_id + 1, 0, -2)
+  if BS.trailing_spaces then
+    local matches = BS.get_matches(content, "( +)[\n\r]", 0, -1)
+    BS.update_style(win, matches, BS.trailing_style, BS.base_style_id + 1)
   end
-  if LTS.other_spaces then
-    local matches = LTS.get_matches(content, "[^\n ]( +)[^\n\r ]")
-    LTS.highlight(win, matches, LTS.other_color, LTS.base_style_id + 2, 1, -1)
+  if BS.other_spaces then
+    local matches = BS.get_matches(content, "[^\n ]( +)[^\n\r ]", 1, -1)
+    BS.update_style(win, matches, BS.other_style, BS.base_style_id + 2)
   end
 end
 
 
-LTS.get_matches = function(input, pattern)
+BS.get_matches = function(input, pattern, start_offset, end_offset)
   local matches = {}
   local cur_match_start = 0
   local cur_match_end = 0
@@ -39,16 +38,14 @@ LTS.get_matches = function(input, pattern)
     if cur_match_start == nil then
       break
     end   
-    table.insert(matches, {mstart=cur_match_start, mend=cur_match_end})
+    table.insert(matches, { mstart = cur_match_start + start_offset, mend = cur_match_end + end_offset})
   end
   return matches
 end
 
-local errlog = io.open("log.txt", "w")
 
-LTS.highlight = function(win, matches, color, style_id, start_offset, end_offset)
-  errlog:write(#matches .. " - " .. color .. " - " .. style_id .. "\n")
-  local res = win:style_define(style_id, "back:" .. color)
+BS.update_style = function(win, matches, style, style_id)
+  local res = win:style_define(style_id, style)
   if not res then
     return
   end
@@ -56,11 +53,11 @@ LTS.highlight = function(win, matches, color, style_id, start_offset, end_offset
   local offset = win.viewport['bytes'].start
   for _,match in ipairs(matches) do
     win:style(style_id, 
-      match.mstart + offset + start_offset - 1, 
-      match.mend + offset + end_offset - 1)
+      match.mstart + offset - 1, 
+      match.mend + offset - 1)
   end
 end
 
-vis.events.subscribe(vis.events.WIN_HIGHLIGHT, LTS.on_win_highlight)
+vis.events.subscribe(vis.events.WIN_HIGHLIGHT, BS.on_win_highlight)
 
-return LTS
+return BS
